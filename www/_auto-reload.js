@@ -14,10 +14,9 @@
     // Configuration
     const CONFIG = {
         enabled: true,              // Set to false to disable
-        checkInterval: 1000,        // Check every 1 second (1000ms)
-        debounceTime: 500,          // Wait 500ms after last change before reload
+        checkInterval: 2000,        // Check every 2 seconds (reduced polling)
         showNotification: true,     // Show notification before reload
-        reloadDelay: 100             // Delay before actual reload (ms)
+        reloadDelay: 100            // Delay before actual reload (ms)
     };
     
     // Only run in development (not in production)
@@ -26,45 +25,67 @@
         window.location.port === '8080' ||
         window.location.port === '8081') {
         
-        let lastModified = null;
+        let lastContentHash = null;
         let reloadTimer = null;
         let isReloading = false;
+        let isChecking = false;
         
         /**
-         * Check if the page has been modified
+         * Simple hash function for content comparison
+         */
+        function hashContent(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32bit integer
+            }
+            return hash.toString();
+        }
+        
+        /**
+         * Check if the page has been modified by comparing content
          */
         function checkForChanges() {
-            if (isReloading || !CONFIG.enabled) return;
+            if (isReloading || !CONFIG.enabled || isChecking) return;
             
-            // Use fetch with cache-busting to check for changes
+            isChecking = true;
+            
+            // Fetch the actual page content to compare
             fetch(window.location.href + '?__check=' + Date.now(), {
-                method: 'HEAD',
+                method: 'GET',
                 cache: 'no-cache',
                 headers: {
                     'Cache-Control': 'no-cache',
                     'Pragma': 'no-cache'
                 }
             })
-            .then(response => {
-                const currentModified = response.headers.get('Last-Modified');
-                const etag = response.headers.get('ETag');
+            .then(response => response.text())
+            .then(content => {
+                // Remove the auto-reload script and dynamic content (like timestamps) from comparison
+                // This prevents false positives from timestamp changes
+                const cleanContent = content
+                    .replace(/<script src=["']\/_auto-reload\.js["']><\/script>/g, '')
+                    .replace(/\d{2}:\d{2}:\d{2}/g, '') // Remove time stamps HH:MM:SS
+                    .trim();
                 
-                if (lastModified === null) {
-                    // First check - just store the value
-                    lastModified = currentModified || etag || Date.now().toString();
-                } else {
-                    // Compare with previous value
-                    const hasChanged = (currentModified && currentModified !== lastModified) ||
-                                     (etag && etag !== lastModified) ||
-                                     (!currentModified && !etag);
-                    
-                    if (hasChanged) {
-                        triggerReload();
-                    }
+                const currentHash = hashContent(cleanContent);
+                
+                if (lastContentHash === null) {
+                    // First check - just store the hash
+                    lastContentHash = currentHash;
+                    console.debug('Auto-reload: Initial content hash stored');
+                } else if (currentHash !== lastContentHash) {
+                    // Content actually changed - trigger reload
+                    console.log('Auto-reload: File changed, reloading...');
+                    triggerReload();
                 }
+                // If hashes match, do nothing (no spam!)
+                
+                isChecking = false;
             })
             .catch(error => {
-                // Silently fail - don't spam console
+                isChecking = false;
                 console.debug('Auto-reload check failed:', error);
             });
         }
@@ -155,21 +176,14 @@
                 return;
             }
             
-            console.log('🔄 Auto-reload enabled - checking every ' + CONFIG.checkInterval + 'ms');
+            console.log('🔄 Auto-reload enabled (content-based detection)');
             
             // Start checking for changes
             setInterval(checkForChanges, CONFIG.checkInterval);
             
-            // Also check on focus (when user switches back to tab)
+            // Check on tab focus (when user switches back)
             window.addEventListener('focus', () => {
-                setTimeout(checkForChanges, 100);
-            });
-            
-            // Listen for visibility change
-            document.addEventListener('visibilitychange', () => {
-                if (!document.hidden) {
-                    setTimeout(checkForChanges, 100);
-                }
+                setTimeout(checkForChanges, 300);
             });
         }
         
