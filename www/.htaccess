@@ -1,0 +1,29 @@
+# Apache .htaccess for PHP Development
+# This file ensures proper directory handling and live reload
+
+# Enable directory browsing (optional, for development)
+Options +Indexes +FollowSymLinks
+
+# Default file to serve
+DirectoryIndex index.php index.html index.htm
+
+# Enable PHP error display (development only - remove in production)
+php_flag display_errors On
+php_flag display_startup_errors On
+
+# Disable browser caching for PHP files (for live development)
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/html "access plus 0 seconds"
+    ExpiresByType application/x-httpd-php "access plus 0 seconds"
+</IfModule>
+
+# Force no cache headers for PHP files
+<IfModule mod_headers.c>
+    <FilesMatch "\.(php|html)$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires 0
+    </FilesMatch>
+</IfModule>
+

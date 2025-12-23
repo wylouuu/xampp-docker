@@ -1,0 +1,25 @@
+# Environment files
+.env
+
+# Logs
+logs/apache/*
+logs/mysql/*
+!logs/.gitkeep
+
+# MySQL data (if stored locally)
+mysql_data/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Composer (optional - uncomment if you want to ignore vendor)
+# www/vendor/
+

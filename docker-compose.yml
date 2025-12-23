@@ -1,0 +1,95 @@
+services:
+  # ===========================================
+  # Apache + PHP Service
+  # ===========================================
+  web:
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    container_name: php-apache
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-8080}:80"           # Default: localhost:8080
+      - "${WEB_PORT_ALT:-8081}:8080"     # Alternative: localhost:8081
+    volumes:
+      - ./www:/var/www/html              # Your PHP files go here
+      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
+      - ./docker/apache/vhost.conf:/etc/apache2/sites-available/000-default.conf
+      - ./logs/apache:/var/log/apache2   # Apache logs
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_USER=${MYSQL_USER:-root}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-root}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-app_db}
+    depends_on:
+      - mysql
+    networks:
+      - php-network
+
+  # ===========================================
+  # MySQL Database Service
+  # ===========================================
+  mysql:
+    image: mysql:8.0
+    container_name: php-mysql
+    restart: unless-stopped
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"       # Default: localhost:3306
+      - "${MYSQL_PORT_ALT:-3307}:3307"   # Alternative: localhost:3307
+    volumes:
+      - mysql_data:/var/lib/mysql        # Persistent data
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d  # Init scripts
+      - ./logs/mysql:/var/log/mysql      # MySQL logs
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-app_db}
+      MYSQL_USER: ${MYSQL_USER:-developer}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-developer123}
+    command: >
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --max_allowed_packet=256M
+      --innodb_buffer_pool_size=256M
+      --wait_timeout=28800
+      --interactive_timeout=28800
+    networks:
+      - php-network
+
+  # ===========================================
+  # phpMyAdmin Service
+  # ===========================================
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: php-phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "${PMA_PORT:-8888}:80"           # Default: localhost:8888
+      - "${PMA_PORT_ALT:-8889}:80"       # Alternative: localhost:8889
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      UPLOAD_LIMIT: 512M                 # Allow large SQL imports
+      MEMORY_LIMIT: 512M
+      MAX_EXECUTION_TIME: 600
+    depends_on:
+      - mysql
+    networks:
+      - php-network
+
+# ===========================================
+# Networks
+# ===========================================
+networks:
+  php-network:
+    driver: bridge
+
+# ===========================================
+# Volumes (Persistent Data)
+# ===========================================
+volumes:
+  mysql_data:
+    driver: local
+

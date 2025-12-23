@@ -1,0 +1,4 @@
+# Place SQL initialization scripts here
+# They will run automatically when the MySQL container first starts
+# Example: 01_create_tables.sql, 02_seed_data.sql
+
