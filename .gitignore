@@ -23,3 +23,13 @@ Thumbs.db
 # Composer (optional - uncomment if you want to ignore vendor)
 # www/vendor/
 
+# www folder: ignore new app folders, but keep existing ones tracked
+# Ignore all subdirectories in www by default
+www/*/
+# Explicitly track existing folders
+!www/demo/
+!www/try/
+# Keep root files in www tracked (they're already tracked, but this ensures they stay)
+!www/*.php
+!www/*.js
+
