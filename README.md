@@ -10,7 +10,7 @@
 [![Apache](https://img.shields.io/badge/Apache-2.4-D22128?style=for-the-badge&logo=apache&logoColor=white)](https://httpd.apache.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 
-**Built with ❤️ by [Wylou](https://github.com/wylou) | [PT. Lunexia Tech Horizon](https://lunexia.com)**
+**Built with ❤️ by [Wylou](https://github.com/wylouuu) | [PT. Lunexia Tech Horizon](https://lunexia.id)**
 
 [Features](#-features) • [Quick Start](#-quick-start) • [Documentation](#-documentation) • [Contributing](#-contributing)
 
@@ -328,8 +328,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Wylou**
 
-- GitHub: [@wylou](https://github.com/wylou)
-- Email: [Your Email]
+- GitHub: [@wylouuu](https://github.com/wylouuu)
+- Email: [lojokowilly.dev@gmail.com](mailto:lojokowilly.dev@gmail.com)
 
 ---
 
@@ -337,7 +337,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **PT. Lunexia Tech Horizon**
 
-- Website: [https://lunexia.com](https://lunexia.com)
+- Website: [https://lunexia.id](https://lunexia.id)
 - Building innovative tech solutions
 
 ---
@@ -358,7 +358,7 @@ If this project helped you, please give it a ⭐ on GitHub!
 
 <div align="center">
 
-**Made with ❤️ by [Wylou](https://github.com/wylou) | [PT. Lunexia Tech Horizon](https://lunexia.com)**
+**Made with ❤️ by [Wylou](https://github.com/wylouuu) | [PT. Lunexia Tech Horizon](https://lunexia.id)**
 
 [⬆ Back to Top](#-php-docker-service)
 
